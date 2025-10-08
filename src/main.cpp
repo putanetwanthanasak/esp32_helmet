@@ -1,21 +1,22 @@
 #include <Arduino.h>
 
-// put function declarations here:
-const int ledPin = 5;
-
+const int buzzerPin =  15;
 
 void setup() {
-  pinMode(ledPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  digitalWrite(buzzerPin, HIGH); // ปิดเสียงตอนเริ่ม
   Serial.begin(115200);
-
+  Serial.println("Active Buzzer Ready");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(ledPin,HIGH);
+  // เปิดเสียง
+  digitalWrite(buzzerPin, LOW);
+  Serial.println("Buzzer ON");
   delay(1000);
-  digitalWrite(ledPin,LOW);
-  delay(1000);
-  Serial.println("test");
-}
 
+  // ปิดเสียง
+  digitalWrite(buzzerPin, HIGH);
+  Serial.println("Buzzer OFF");
+  delay(1000);
+}
