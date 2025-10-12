@@ -20,5 +20,10 @@
 #define SHOCK_DEBOUNCE_MS     30     // เวลาดีบั๊วน์ (ms) สำหรับ shock sensor
 #define SHOCK_LATCH_MS        500    // ระยะเวลาที่ shock sensor ถูกล็อกเหตุการณ์ล่าสุดไว้
 
+// ================= Buzzer =================
+#define BUZZER_PIN 4        // ขา GPIO ต่อ buzzer
+#define BUZZER_ACTIVE_HIGH 0 // ถ้า buzzer ดังเมื่อ HIGH ให้ = 1, ถ้าดังเมื่อ LOW ให้ = 0
+#define BUZZER_DURATION 1000 // เวลาเปิดเสียง (มิลลิวินาที)
+
 
 #endif

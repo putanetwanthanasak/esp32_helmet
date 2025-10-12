@@ -137,6 +137,22 @@ bool crashDecision(bool impactNow, bool tiltNow, bool shockNow) {
   return false; // ยังไม่ล้ม
 }
 
+void controlBuzzer(bool state) {
+  if (BUZZER_ACTIVE_HIGH) {
+    digitalWrite(BUZZER_PIN, state ? HIGH : LOW);
+  } else {
+    digitalWrite(BUZZER_PIN, state ? LOW : HIGH);
+  }
+}
+void triggerCrashAlert() {
+  Serial.println("🚨 Crash detected! Turning on buzzer...");
+  controlBuzzer(true);
+  delay(BUZZER_DURATION);
+  controlBuzzer(false);
+}
+
+
+
 // ========== Arduino setup/loop ==========
 void setup() {
   Serial.begin(115200);
@@ -155,6 +171,8 @@ void setup() {
   delay(100);
 
   Serial.println("Ready.");
+  pinMode(BUZZER_PIN, OUTPUT);
+  controlBuzzer(false);  // เริ่มต้นปิดเสียงไว้ก่อน
 }
 
 void loop() {
@@ -170,18 +188,19 @@ void loop() {
   bool crashed = crashDecision(impact, tilt, shock);
 
   // DEBUG/ต่อยอด
-  Serial.print("A:"); Serial.print(imu.Atotal_ms2, 2);
-  Serial.print("  R:"); Serial.print(imu.roll_deg, 1);
-  Serial.print("  P:"); Serial.print(imu.pitch_deg, 1);
-  Serial.print("  | impact="); Serial.print(impact);
-  Serial.print(" tilt="); Serial.print(tilt);
-  Serial.print(" shock="); Serial.print(shock);
-  Serial.print("  => CRASH=");
-  Serial.println(crashed ? "YES" : "no");
+  // Serial.print("A:"); Serial.print(imu.Atotal_ms2, 2);
+  // Serial.print("  R:"); Serial.print(imu.roll_deg, 1);
+  // Serial.print("  P:"); Serial.print(imu.pitch_deg, 1);
+  // Serial.print("  | impact="); Serial.print(impact);
+  // Serial.print(" tilt="); Serial.print(tilt);
+  // Serial.print(" shock="); Serial.print(shock);
+  // Serial.print("  => CRASH=");
+  // Serial.println(crashed ? "YES" : "no");
 
   if (crashed) {
     // TODO: เปิด Buzzer/ไฟฉุกเฉิน/เริ่ม countdown ส่ง GPS
     // triggerBuzzer(); startSOS(); sendGPS();
+    triggerCrashAlert();
   }
 
   delay(100);
