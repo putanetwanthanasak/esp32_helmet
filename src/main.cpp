@@ -95,8 +95,6 @@ bool readShockEvent() {
 }
 
 // ====== 5) ฟังก์ชันสรุปการชน (รวม Impact + Tilt + Shock) ======
-// ตรรกะ: ถ้ามี impact หรือ shock -> ARM (เปิดหน้าต่างตรวจต่อ ARM_WINDOW_MS)
-// ระหว่าง ARM ถ้า tilt ค้าง >= TILT_HOLD_MS => crash จริง (คืน true หนึ่งครั้ง)
 bool crashDecision(bool impactNow, bool tiltNow, bool shockNow) {
   static bool armed = false;
   static unsigned long armUntilMs = 0;
@@ -104,39 +102,42 @@ bool crashDecision(bool impactNow, bool tiltNow, bool shockNow) {
 
   unsigned long now = millis();
 
-  // เงื่อนไขเปิดหน้าต่าง
-  if ((impactNow || shockNow)) {
+  // ถ้ามี impact หรือ shock ตอนนี้ → เปิดโหมดตรวจจับใหม่
+  if (impactNow && shockNow) {
     armed = true;
     armUntilMs = now + ARM_WINDOW_MS;
   }
 
-  // จับเวลาการเอียงค้าง
+  // ถ้าไม่มี impact/shock เลย และไม่มี tilt → reset สถานะทั้งหมด
+  if (!impactNow && !shockNow && !tiltNow) {
+    armed = false;
+    tiltSinceMs = 0;
+  }
+
+  // ถ้าเอียงอยู่ → เริ่มจับเวลาเอียงค้าง
   if (tiltNow) {
     if (tiltSinceMs == 0) tiltSinceMs = now;
   } else {
     tiltSinceMs = 0;
   }
 
-  // ตรวจในช่วง ARM window
-  if (armed) {
-    if (now <= armUntilMs) {
-      if (tiltSinceMs && (now - tiltSinceMs) >= TILT_HOLD_MS) {
-        // คอนเฟิร์มการชน
-        armed = false;
-        tiltSinceMs = 0;
-        return true; // ชนจริง!
-      }
-    } else {
-      // หมดเขตหน้าต่าง
+  // ตรวจภายในช่วง armed เท่านั้น
+  if (armed && (now <= armUntilMs)) {
+    if (tiltSinceMs && (now - tiltSinceMs) >= TILT_HOLD_MS) {
       armed = false;
       tiltSinceMs = 0;
+      return true; // ล้มจริง
     }
+  } else if (armed && (now > armUntilMs)) {
+    // หมดเวลาหน้าต่างตรวจจับ
+    armed = false;
+    tiltSinceMs = 0;
   }
 
-  return false; // ยังไม่ชน/ยังไม่คอนเฟิร์ม
+  return false; // ยังไม่ล้ม
 }
 
-// ========== Arduino setup/loop (สั้นที่สุด) ==========
+// ========== Arduino setup/loop ==========
 void setup() {
   Serial.begin(115200);
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -183,5 +184,5 @@ void loop() {
     // triggerBuzzer(); startSOS(); sendGPS();
   }
 
-  delay(10);
+  delay(100);
 }
