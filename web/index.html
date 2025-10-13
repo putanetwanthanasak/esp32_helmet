@@ -1,14 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js"></script>
-    
+	<meta charset='utf-8'>
+	<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+	<title>Page Title</title>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<link rel='stylesheet' type='text/css' media='screen' href='style.css'>
+	<script src='register.js'></script>
 </head>
 <body>
-    
+	<form name="myRegister" id="myRegister" action="login.html">
+		<fieldset>
+			<legend>Register</legend>
+			<span>* require</span> <br>
+			<span id="errormsg"></span> <br>
+			First name*: 
+			<input type="text" name="firstname" required>
+			Last name*: 
+			<input type="text" name="lastname" >
+			<br>
+			Gender*: 
+			<input type="radio" name="gender" value="male" >Male
+			<input type="radio" name="gender" value="female" >Female
+			<input type="radio" name="gender" value="female" >Other
+			<br>
+			Birthday*: 
+			<input type="date" name="bday" value="" >
+			<br>
+
+			Blood Group*: 
+				<select name="bloodgroup" required>
+				<option value="">--Select--</option>
+				<option value="A">A</option>
+				<option value="B">B</option>
+				<option value="AB">AB</option>
+				<option value="O">O</option>
+				</select>
+				<br>
+
+			Underlying Diseases (โรคประจำตัว): 
+				<input type="text" name="disease" placeholder="เช่น เบาหวาน, ความดันโลหิตสูง">
+				<br>
+
+			Allergies (ยาที่แพ้/อาหารที่แพ้): 
+				<input type="text" name="allergy" placeholder="เช่น เพนิซิลลิน, กุ้ง">
+				<br>
+
+			Current Medications (ยาที่ใช้ประจำ): 
+				<input type="text" name="medication" placeholder="เช่น ยาลดความดัน, อินซูลิน">
+				<br>
+
+			Emergency Contact Name*: 
+				<input type="text" name="emergencyname" required>
+				<br>
+
+			Emergency Contact Number*: 
+				<input type="tel" name="emergencyphone" required pattern="[0-9]{10}" placeholder="0XXXXXXXXX">
+				<br><br>
+
+
+		</fieldset>
+	</form>
 </body>
 </html>
