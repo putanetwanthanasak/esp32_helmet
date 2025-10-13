@@ -1,12 +1,10 @@
+// ฟังก์ชันจัดการเมื่อกดปุ่ม Register
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("myRegister");
-
-  // ถ้าอยู่หน้า register
   if (form) {
-    form.addEventListener("submit", (event) => {
-      event.preventDefault(); // ป้องกัน reload หน้า
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
 
-      // เก็บข้อมูลทั้งหมดใน object
       const data = {
         firstname: form.firstname.value,
         lastname: form.lastname.value,
@@ -20,15 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
         emergencyphone: form.emergencyphone.value
       };
 
-      // บันทึกข้อมูลใน localStorage
       localStorage.setItem("profileData", JSON.stringify(data));
-
-      // เปิดหน้าโปรไฟล์
       window.location.href = "profile.html";
     });
   }
 
-  // ถ้าอยู่หน้า profile.html
+  // ถ้าอยู่ในหน้า profile.html ให้โหลดข้อมูลมาแสดง
   const profileDiv = document.getElementById("profileData");
   if (profileDiv) {
     const data = JSON.parse(localStorage.getItem("profileData"));
