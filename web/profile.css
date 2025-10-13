@@ -1,0 +1,100 @@
+/* พื้นหลังทั้งหน้า */
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #e3f2fd 0%, #90caf9 20%, #0a1931 100%);
+  font-family: "Poppins", sans-serif;
+  color: #e3f2fd;
+}
+
+/* กล่องโปรไฟล์หลัก */
+.profile-box {
+  width: 90%;
+  max-width: 650px;
+  background: linear-gradient(145deg, #0d1b2a, #1b263b);
+  border-radius: 25px;
+  padding: 50px 60px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+/* แสงประกายขาว */
+.profile-box::before {
+  content: "";
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  top: -80px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25), transparent 70%);
+  border-radius: 50%;
+}
+
+/* หัวข้อโปรไฟล์ */
+.profile-box h2 {
+  color: #90caf9;
+  text-align: center;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  margin-bottom: 30px;
+  text-shadow: 0 0 15px rgba(144, 202, 249, 0.8);
+}
+
+/* กล่องข้อมูลแต่ละแถว */
+.info {
+  margin: 10px 0;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info span {
+  font-weight: 600;
+  color: #bbdefb;
+}
+
+/* ปุ่มกลับ */
+.back-btn {
+  display: block;
+  text-align: center;
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin: 40px auto 0;
+  width: fit-content;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(66, 165, 245, 0.5);
+}
+
+.back-btn:hover {
+  background: linear-gradient(135deg, #64b5f6, #42a5f5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(66, 165, 245, 0.6);
+}
+
+/* ข้อความเมื่อไม่มีข้อมูล */
+.profile-box p {
+  text-align: center;
+  color: #b0bec5;
+}
+
+/* แอนิเมชันตอนเปิดหน้า */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-box {
+  animation: fadeIn 0.8s ease forwards;
+}

@@ -1,0 +1,140 @@
+/* reset พื้นฐาน */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+/* พื้นหลัง */
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, #e8f1ff 0%, #c0d4f2 25%, #0a1931 100%);
+  background-attachment: fixed;
+}
+
+/* กล่องฟอร์ม */
+form {
+  width: 90%;
+  max-width: 600px;
+  background: linear-gradient(145deg, #0d1b2a, #1b263b);
+  color: #e5e5e5;
+  padding: 40px 50px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+/* legend */
+legend {
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  color: #90caf9;
+  text-shadow: 0 0 15px rgba(144, 202, 249, 0.7);
+  margin-bottom: 20px;
+}
+
+/* * require text */
+span {
+  color: #90caf9;
+  font-size: 0.9rem;
+}
+
+/* error message */
+#errormsg {
+  color: #ff7b7b;
+}
+
+/* input และ select */
+input[type="text"],
+input[type="date"],
+input[type="tel"],
+select {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 10px 0 18px;
+  border-radius: 10px;
+  border: 1px solid #5f799b;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e8f1ff;
+  transition: all 0.3s ease;
+}
+
+/* โฟกัส */
+input:focus,
+select:focus {
+  border-color: #90caf9;
+  box-shadow: 0 0 8px rgba(144, 202, 249, 0.8);
+  outline: none;
+}
+
+/* radio */
+input[type="radio"] {
+  margin-left: 10px;
+  margin-right: 5px;
+  accent-color: #2196f3;
+}
+
+/* ปุ่ม submit */
+input[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 5px 15px rgba(66, 165, 245, 0.5);
+  transition: all 0.3s ease;
+}
+
+input[type="submit"]:hover {
+  background: linear-gradient(135deg, #42a5f5, #64b5f6);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(66, 165, 245, 0.6);
+}
+
+/* หัวข้อหมวดย่อย */
+h4 {
+  margin-top: 30px;
+  margin-bottom: 10px;
+  color: #bbdefb;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #64b5f6;
+  padding-bottom: 5px;
+}
+
+/* label */
+form label,
+form p {
+  color: #e3f2fd;
+  font-weight: 500;
+}
+
+/* เพิ่มเอฟเฟกต์ glow เล็กน้อย */
+form::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  top: -50px;
+  right: -50px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 60%);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+fieldset {
+  position: relative;
+  z-index: 1;
+  border: none;
+}
+

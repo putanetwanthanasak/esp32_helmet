@@ -1,14 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js"></script>
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="register.js" defer></script>
 </head>
 <body>
-    
+  <form id="myRegister">
+    <fieldset>
+      <legend>Register</legend>
+      <span>* require</span> <br><br>
+
+      First name*: 
+      <input type="text" name="firstname" required><br>
+
+      Last name*: 
+      <input type="text" name="lastname" required><br>
+
+      Gender*: 
+      <input type="radio" name="gender" value="Male" required> Male
+      <input type="radio" name="gender" value="Female"> Female
+      <input type="radio" name="gender" value="Other"> Other
+      <br>
+
+      Birthday*: 
+      <input type="date" name="bday" required><br>
+
+      Blood Group*: 
+      <select name="bloodgroup" required>
+        <option value="">--Select--</option>
+        <option>A</option>
+        <option>B</option>
+        <option>AB</option>
+        <option>O</option>
+      </select><br>
+
+      Underlying Diseases: 
+      <input type="text" name="disease"><br>
+
+      Allergies: 
+      <input type="text" name="allergy"><br>
+
+      Current Medications: 
+      <input type="text" name="medication"><br>
+
+      Emergency Contact Name*: 
+      <input type="text" name="emergencyname" required><br>
+
+      Emergency Contact Number*: 
+      <input type="tel" name="emergencyphone" pattern="[0-9]{10}" required placeholder="0XXXXXXXXX"><br><br>
+
+      <input type="submit" value="Register">
+    </fieldset>
+  </form>
 </body>
 </html>
