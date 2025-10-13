@@ -1,4 +1,4 @@
-/* รีเซ็ตค่าพื้นฐาน */
+/* reset พื้นฐาน */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,116 +6,135 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* พื้นหลังทั้งหน้า */
+/* พื้นหลัง */
 body {
-  background: linear-gradient(135deg, #f8e0c7, #f4c78d);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: radial-gradient(circle at top, #e8f1ff 0%, #c0d4f2 25%, #0a1931 100%);
+  background-attachment: fixed;
 }
 
-/* กล่องฟอร์มหลัก */
+/* กล่องฟอร์ม */
 form {
   width: 90%;
   max-width: 600px;
-  background-color: #fffdf9;
+  background: linear-gradient(145deg, #0d1b2a, #1b263b);
+  color: #e5e5e5;
   padding: 40px 50px;
-  border-radius: 25px;
-  box-shadow: 0 8px 25px rgba(92, 61, 46, 0.25);
-  border: 2px solid #e0b47b;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
 }
 
-/* เส้นกรอบ fieldset */
-fieldset {
-  border: none;
-}
-
-/* หัวข้อ legend */
+/* legend */
 legend {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #5c3d2e;
+  font-size: 2.2rem;
+  font-weight: 700;
   text-align: center;
+  color: #90caf9;
+  text-shadow: 0 0 15px rgba(144, 202, 249, 0.7);
   margin-bottom: 20px;
 }
 
-/* ข้อความ * require */
+/* * require text */
 span {
-  color: #b1735e;
+  color: #90caf9;
   font-size: 0.9rem;
 }
 
-/* ข้อความ error */
+/* error message */
 #errormsg {
-  color: red;
-  font-size: 0.9rem;
+  color: #ff7b7b;
 }
 
-/* ช่อง input และ select */
+/* input และ select */
 input[type="text"],
 input[type="date"],
 input[type="tel"],
 select {
   width: 100%;
-  padding: 10px 12px;
-  margin: 8px 0 16px;
+  padding: 12px 14px;
+  margin: 10px 0 18px;
   border-radius: 10px;
-  border: 1.5px solid #c59a74;
-  background-color: #fdf8f4;
+  border: 1px solid #5f799b;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e8f1ff;
   transition: all 0.3s ease;
 }
 
-/* เมื่อคลิกในช่อง input */
+/* โฟกัส */
 input:focus,
 select:focus {
-  border-color: #8f5d3e;
+  border-color: #90caf9;
+  box-shadow: 0 0 8px rgba(144, 202, 249, 0.8);
   outline: none;
-  box-shadow: 0 0 5px rgba(143, 93, 62, 0.5);
 }
 
-/* ช่อง radio */
+/* radio */
 input[type="radio"] {
   margin-left: 10px;
   margin-right: 5px;
+  accent-color: #2196f3;
 }
 
 /* ปุ่ม submit */
 input[type="submit"] {
   width: 100%;
-  padding: 12px;
-  background-color: #8f5d3e;
-  color: white;
+  padding: 14px;
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  letter-spacing: 1px;
+  box-shadow: 0 5px 15px rgba(66, 165, 245, 0.5);
+  transition: all 0.3s ease;
 }
 
 input[type="submit"]:hover {
-  background-color: #b1735e;
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #42a5f5, #64b5f6);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(66, 165, 245, 0.6);
 }
 
 /* หัวข้อหมวดย่อย */
 h4 {
   margin-top: 30px;
   margin-bottom: 10px;
-  color: #4f3821;
+  color: #bbdefb;
   font-size: 1.2rem;
-  border-bottom: 2px solid #e0b47b;
+  border-bottom: 2px solid #64b5f6;
   padding-bottom: 5px;
 }
 
-/* ข้อความ label */
+/* label */
 form label,
 form p {
-  color: #5c3d2e;
+  color: #e3f2fd;
   font-weight: 500;
 }
 
-/* เพิ่มการเว้นระยะห่างแนวตั้ง */
-br + br {
-  line-height: 2rem;
+/* เพิ่มเอฟเฟกต์ glow เล็กน้อย */
+form::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  top: -50px;
+  right: -50px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 60%);
+  border-radius: 50%;
+  z-index: 0;
 }
+
+fieldset {
+  position: relative;
+  z-index: 1;
+  border: none;
+}
+
