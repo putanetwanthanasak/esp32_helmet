@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="info"><span>Emergency Phone:</span> ${data.emergencyphone}</div>
       `;
     } else {
-      profileDiv.innerHTML = `<p>No profile data found. Please <a href='register.html'>register</a> first.</p>`;
+      profileDiv.innerHTML = `<p>No profile data found. Please <a href='index.html'>register</a> first.</p>`;
     }
   }
 });
