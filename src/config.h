@@ -2,7 +2,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// ================= I2C CONFIG =================
+// 1. ดึงค่า secret ทั้งหมด (WiFi, Auth, UserID) จาก secrets.h
+#include "secrets.h"
+
+// ================= ตั้งค่า I2C =================
 #define I2C_SDA               21    // SDA pin on ESP32
 #define I2C_SCL               22    // SCL pin on ESP32
 
@@ -25,5 +28,9 @@
 #define BUZZER_ACTIVE_HIGH 0 // ถ้า buzzer ดังเมื่อ HIGH ให้ = 1, ถ้าดังเมื่อ LOW ให้ = 0
 #define BUZZER_DURATION 1000 // เวลาเปิดเสียง (มิลลิวินาที)
 
+// ================= FIREBASE (ส่วน Public) =================
+#define FIREBASE_HOST         "https://helmetsafty-default-rtdb.asia-southeast1.firebasedatabase.app" 
+
+// (ค่าจอ OLED ย้ายไปกำหนดใน main.cpp ผ่าน U8g2 แล้ว)
 
 #endif

@@ -5,13 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile</title>
   <link rel="stylesheet" href="profile.css">
-  <script src="register.js" defer></script>
-</head>
+  </head>
 <body>
   <div class="profile-box">
     <h2>Profile Information</h2>
     <div id="profileData"></div>
     <a href="index.html" class="back-btn">🔙 Register Again</a>
   </div>
+
+  <script type="module">
+    // Import ฟังก์ชันที่จำเป็นจาก Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    // Config ของ Firebase (เหมือนกับใน index.html)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZ-CrD57PuiwyU9axX5KLIusBVREiEOhM",
+      authDomain: "helmetsafty.firebaseapp.com",
+      databaseURL: "https://helmetsafty-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "helmetsafty",
+      storageBucket: "helmetsafty.firebasestorage.app",
+      messagingSenderId: "268114123475",
+      appId: "1:268114123475:web:03906ae1d864c86d961226",
+      measurementId: "G-GY1PXC9YEE"
+    };
+
+    // เริ่มต้น Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ทำงานเมื่อหน้าเว็บโหลดเสร็จ
+    document.addEventListener("DOMContentLoaded", () => {
+      const profileDiv = document.getElementById("profileData");
+      
+      // 1. ดึง 'uid' (เบอร์มือถือ) จาก URL
+      const params = new URLSearchParams(window.location.search);
+      const userId = params.get("uid");
+
+      if (userId) {
+        // 2. ถ้ามี uid, ไปดึงข้อมูลจาก 'users/<userId>'
+        const userRef = ref(db, 'users/' + userId);
+        
+        get(userRef).then((snapshot) => {
+          if (snapshot.exists()) {
+            // 3. ถ้าเจอข้อมูล, สร้าง HTML
+            const data = snapshot.val();
+            
+            // --- ส่วนที่แก้ไข: เพิ่ม 'data.userphone' ---
+            profileDiv.innerHTML = `
+              <div class="info"><span>Name:</span> ${data.firstname} ${data.lastname}</div>
+              <div class="info"><span>Phone (ID):</span> ${data.userphone}</div>
+              <div class="info"><span>Gender:</span> ${data.gender}</div>
+              <div class="info"><span>Birthday:</span> ${data.bday}</div>
+              <div class="info"><span>Blood Group:</span> ${data.bloodgroup}</div>
+              <div class="info"><span>Underlying Diseases:</span> ${data.disease || '-'}</div>
+              <div class="info"><span>Allergies:</span> ${data.allergy || '-'}</div>
+              <div class="info"><span>Current Medications:</span> ${data.medication || '-'}</div>
+              <div class="info"><span>Emergency Contact:</span> ${data.emergencyname}</div>
+              <div class="info"><span>Emergency Phone:</span> ${data.emergencyphone}</div>
+            `;
+            // --- จบส่วนที่แก้ไข ---
+
+          } else {
+            // 4. ถ้ามี uid แต่หาข้อมูลไม่เจอ
+            profileDiv.innerHTML = `<p>Error: Could not find profile data for ID: ${userId}</p>`;
+          }
+        }).catch((error) => {
+          console.error("Firebase read error:", error);
+          profileDiv.innerHTML = `<p>Error loading data. Please try again.</p>`;
+        });
+
+      } else {
+        // 5. ถ้าไม่มี uid ใน URL
+        profileDiv.innerHTML = `<p>No profile data found. Please <a href='index.html'>register</a> first.</p>`;
+      }
+    });
+  </script>
 </body>
 </html>
