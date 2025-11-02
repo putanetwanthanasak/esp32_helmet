@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <HTTPClient.h>
 #include "Line_MessagingAPI.h"
-#include "secretsConfig.h"  
+#include "secrets.h"  
 
 // ---------- helpers ----------
 static String mapsLink(double lat, double lon) {

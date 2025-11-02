@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="register.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <form id="myRegister">
@@ -18,6 +17,9 @@
 
       Last name*: 
       <input type="text" name="lastname" required><br>
+
+      Your Phone Number*: 
+      <input type="text" name="userphone" pattern="[0-9]{9,10}" required placeholder="0XXXXXXXXX (ใช้เป็น ID เข้าระบบ)"><br>
 
       Gender*: 
       <input type="radio" name="gender" value="Male" required> Male
@@ -55,5 +57,66 @@
       <input type="submit" value="Register">
     </fieldset>
   </form>
+
+  <script type="module">
+    // 1. ใช้ 'set' (ไม่ใช่ 'push') เพื่อใช้เบอร์โทรเป็น key
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZ-CrD57PuiwyU9axX5KLIusBVREiEOhM",
+      authDomain: "helmetsafty.firebaseapp.com",
+      databaseURL: "https://helmetsafty-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "helmetsafty",
+      storageBucket: "helmetsafty.firebasestorage.app",
+      messagingSenderId: "268114123475",
+      appId: "1:268114123475:web:03906ae1d864c86d961226",
+      measurementId: "G-GY1PXC9YEE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    document.getElementById("myRegister").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // 2. ดึงเบอร์โทรมา 'sanitize' (ตัดขีด, เว้นวรรค, เครื่องหมายบวก)
+      const userPhone = this.userphone.value;
+      const sanitizedPhone = userPhone.replace(/[^0-9]/g, ''); // เอาแค่ 0-9
+
+      if (sanitizedPhone.length < 9) {
+          alert("กรุณากรอกเบอร์มือถือให้ถูกต้อง (9-10 หลัก)");
+          return;
+      }
+
+      const data = {
+        userphone: sanitizedPhone, // 3. เก็บเบอร์โทรลงใน object data ด้วย
+        firstname: this.firstname.value,
+        lastname: this.lastname.value,
+        gender: this.gender.value,
+        bday: this.bday.value,
+        bloodgroup: this.bloodgroup.value,
+        disease: this.disease.value || "None",
+        allergy: this.allergy.value || "None",
+        medication: this.medication.value || "None",
+        emergencyname: this.emergencyname.value,
+        emergencyphone: this.emergencyphone.value,
+        timestamp: Date.now()
+      };
+
+      // 4. 'set' จะสร้าง path 'users/<phone_number>' (หรือทับของเดิมถ้ามีอยู่แล้ว)
+      set(ref(db, 'users/' + sanitizedPhone), data)
+        .then(() => {
+          alert("✅ Register Success! ข้อมูลถูกบันทึก/อัปเดตแล้ว");
+          
+          // 5. ส่งเบอร์ (uid) ไปหน้า profile.html ผ่าน URL
+          window.location.href = `profile.html?uid=${sanitizedPhone}`;
+        })
+        .catch((error) => {
+          console.error("❌ Error adding/updating data:", error);
+          alert("บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+        });
+    });
+  </script>
 </body>
 </html>
