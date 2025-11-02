@@ -4,7 +4,9 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <math.h>
-
+#include "Line_MessagingAPI.h"
+#include "secretsConfig.h"
+#include <WiFi.h>
 
 // ========== GLOBALS ==========
 Adafruit_MPU6050 mpu;
@@ -137,25 +139,34 @@ bool crashDecision(bool impactNow, bool tiltNow, bool shockNow) {
   return false; // ยังไม่ล้ม
 }
 
-void controlBuzzer(bool state) {
-  if (BUZZER_ACTIVE_HIGH) {
-    digitalWrite(BUZZER_PIN, state ? HIGH : LOW);
-  } else {
-    digitalWrite(BUZZER_PIN, state ? LOW : HIGH);
-  }
-}
-void triggerCrashAlert() {
-  Serial.println("🚨 Crash detected! Turning on buzzer...");
-  controlBuzzer(true);
-  delay(BUZZER_DURATION);
-  controlBuzzer(false);
-}
+// void controlBuzzer(bool state) {
+//   if (BUZZER_ACTIVE_HIGH) {
+//     digitalWrite(BUZZER_PIN, state ? HIGH : LOW);
+//   } else {
+//     digitalWrite(BUZZER_PIN, state ? LOW : HIGH);
+//   }
+// }
+// void triggerCrashAlert() {
+//   Serial.println("🚨 Crash detected! Turning on buzzer...");
+//   controlBuzzer(true);
+//   delay(BUZZER_DURATION);
+//   controlBuzzer(false);
+// }
 
 
 
 // ========== Arduino setup/loop ==========
 void setup() {
   Serial.begin(115200);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(300);
+    Serial.print(".");
+  }
+  Serial.println("\nWi-Fi Connected!");
+
+
   Wire.begin(I2C_SDA, I2C_SCL);
 
   pinMode(SHOCK_PIN, SHOCK_ACTIVE_LOW ? INPUT_PULLUP : INPUT);
@@ -171,9 +182,12 @@ void setup() {
   delay(100);
 
   Serial.println("Ready.");
-  pinMode(BUZZER_PIN, OUTPUT);
-  controlBuzzer(false);  // เริ่มต้นปิดเสียงไว้ก่อน
+  // pinMode(BUZZER_PIN, OUTPUT);
+  // controlBuzzer(false);  // เริ่มต้นปิดเสียงไว้ก่อน
 }
+
+
+
 
 void loop() {
   // อ่านคุณลักษณะจาก IMU
@@ -187,20 +201,24 @@ void loop() {
   // สรุปเป็น "ชนจริง" ?
   bool crashed = crashDecision(impact, tilt, shock);
 
-  // DEBUG/ต่อยอด
-  // Serial.print("A:"); Serial.print(imu.Atotal_ms2, 2);
-  // Serial.print("  R:"); Serial.print(imu.roll_deg, 1);
-  // Serial.print("  P:"); Serial.print(imu.pitch_deg, 1);
-  // Serial.print("  | impact="); Serial.print(impact);
-  // Serial.print(" tilt="); Serial.print(tilt);
-  // Serial.print(" shock="); Serial.print(shock);
-  // Serial.print("  => CRASH=");
-  // Serial.println(crashed ? "YES" : "no");
+ // DEBUG/ต่อยอด
+  Serial.print("A:"); Serial.print(imu.Atotal_ms2, 2);
+  Serial.print("  R:"); Serial.print(imu.roll_deg, 1);
+  Serial.print("  P:"); Serial.print(imu.pitch_deg, 1);
+  Serial.print("  | impact="); Serial.print(impact);
+  Serial.print(" tilt="); Serial.print(tilt);
+  Serial.print(" shock="); Serial.print(shock);
+  Serial.print("  => CRASH=");
+  Serial.println(crashed ? "YES" : "no");
 
   if (crashed) {
     // TODO: เปิด Buzzer/ไฟฉุกเฉิน/เริ่ม countdown ส่ง GPS
     // triggerBuzzer(); startSOS(); sendGPS();
-    triggerCrashAlert();
+    double lat = 13.6515;      // ใส่ค่าจาก GPS ของคุณ
+    double lon = 100.4943;     // ใส่ค่าจาก GPS ของคุณ
+    lineSendCrash(lat, lon);
+    // (เลือกได้) กันส่งซ้ำ:
+    delay(2000);
   }
 
   delay(100);
