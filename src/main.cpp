@@ -13,7 +13,7 @@
 #include <U8g2lib.h>
 
 // --- !!! สวิตช์หลัก: 1 = โหมดจำลอง, 0 = โหมดใช้งานจริง !!! ---
-#define SIMULATION_MODE 1
+#define SIMULATION_MODE 0
 
 
 //=================================================================
@@ -29,7 +29,12 @@ static unsigned long g_last_ms = 0;
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
-U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE, /* scl=*/ I2C_SCL, /* sda=*/ I2C_SDA);
+// ใหม่ (SW I2C แยกพินจอ ไม่ยุ่งกับ Wire/Sensors)
+U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(
+  U8G2_R0,
+  /* clock=*/ DISP_SCL,
+  /* data=*/  DISP_SDA,
+  /* reset=*/ U8X8_PIN_NONE);
 
 // --- ตัวแปร Global สำหรับเก็บข้อมูลผู้ใช้ (ดึงจาก Firebase) ---
 String g_firstname, g_lastname, g_blood, g_disease, g_allergy, g_medication, g_emer_name, g_emer_phone;
@@ -97,29 +102,43 @@ bool detectTilt(float roll_deg, float pitch_deg) {
 
 // ====== 4) อ่าน Shock sensor แบบ debounce + latch (คืน TRUE เมื่อเพิ่งมีเหตุการณ์) ======
 bool readShockEvent() {
-  static unsigned long lastChangeMs = 0;
-  static int lastStable = SHOCK_ACTIVE_LOW ? HIGH : LOW; // เริ่มนิ่ง
-  static unsigned long lastShockMs = 0;
+  static unsigned long lastEdgeMs = 0;           // เวลาเปลี่ยนแปลงของสัญญาณดิบครั้งล่าสุด
+  static int lastRaw = -1;                        // ค่าดิบครั้งก่อน (-1 = ยังไม่เริ่ม)
+  static int debounced = -1;                      // ค่าที่ดีบาวซ์แล้ว
+  static unsigned long lastShockMs = 0;           // เวลาที่เกิด shock ครั้งล่าสุด (หลังดีบาวซ์)
+  
+  const int activeLevel = SHOCK_ACTIVE_LOW ? LOW : HIGH;
+  const unsigned long now = millis();
 
-  int raw = digitalRead(SHOCK_PIN);
-  int activeLevel = SHOCK_ACTIVE_LOW ? LOW : HIGH;
+  // อ่านค่า raw ปัจจุบัน
+  const int raw = digitalRead(SHOCK_PIN);
 
-  unsigned long now = millis();
+  // 1) ติดตามการเปลี่ยนของ raw เพื่อเริ่มจับเวลาดีบาวซ์
+  if (raw != lastRaw) {
+    lastRaw = raw;
+    lastEdgeMs = now;     // เริ่มจับเวลาเมื่อมีการเปลี่ยนแปลง
+  }
 
-  // debounce เปลี่ยนสถานะ
-  if (raw != lastStable && (now - lastChangeMs) > SHOCK_DEBOUNCE_MS) {
-    lastChangeMs = now;
-    lastStable = raw;
-    if (lastStable == activeLevel) {
-      lastShockMs = now; // จับเหตุการณ์ช็อก
-      return true;
+  // 2) ถ้าค่า raw คงที่นานเกิน DEBOUNCE → ยอมรับเป็นค่า debounced ใหม่
+  if (debounced == -1) {
+    // ครั้งแรก: ตั้งต้นด้วยค่า raw หลังผ่าน DEBOUNCE เพื่อกัน false trigger
+    if ((now - lastEdgeMs) >= SHOCK_DEBOUNCE_MS) {
+      debounced = raw;
+    }
+  } else if ((now - lastEdgeMs) >= SHOCK_DEBOUNCE_MS && debounced != raw) {
+    debounced = raw;
+
+    // 3) ตรวจจับ "เหตุการณ์" เมื่อค่าที่ดีบาวซ์เปลี่ยนเข้า activeLevel
+    if (debounced == activeLevel) {
+      lastShockMs = now;  // เกิด shock (ขอบที่ดีบาวซ์แล้ว)
     }
   }
 
-  // ภายในหน้าต่าง latch ยังถือว่า "มีช็อกล่าสุด"
+  // 4) Latch: ภายในหน้าต่างเวลาหลัง shock ยังถือว่า "มีช็อก"
   if (lastShockMs && (now - lastShockMs) <= SHOCK_LATCH_MS) {
     return true;
   }
+
   return false;
 }
 
@@ -132,7 +151,7 @@ bool crashDecision(bool impactNow, bool tiltNow, bool shockNow) {
   unsigned long now = millis();
 
   // ถ้ามี impact หรือ shock ตอนนี้ → เปิดโหมดตรวจจับใหม่
-  if (impactNow && shockNow) {
+  if (impactNow || shockNow) {
     armed = true;
     armUntilMs = now + ARM_WINDOW_MS;
   }
@@ -388,7 +407,7 @@ void setup() {
 
 void loop() {
   
-  bool crashDetected = false; // สร้าง Flag เพื่อเก็บสถานะการชน
+  // bool crashDetected = false; // สร้าง Flag เพื่อเก็บสถานะการชน
 
   #if SIMULATION_MODE == 1
     // --- !!! โหมดจำลอง !!! ---
@@ -407,12 +426,20 @@ void loop() {
     bool shock  = readShockEvent();
     
     // 2. สรุปผล
-    crashDetected = crashDecision(impact, tilt, shock);
+    bool crashed = crashDecision(impact, tilt, shock);
 
   #endif
+  Serial.print("A:"); Serial.print(imu.Atotal_ms2, 2);
+  Serial.print("  R:"); Serial.print(imu.roll_deg, 1);
+  Serial.print("  P:"); Serial.print(imu.pitch_deg, 1);
+  Serial.print("  | impact="); Serial.print(impact);
+  Serial.print(" tilt="); Serial.print(tilt);
+  Serial.print(" shock="); Serial.print(shock);
+  Serial.print("  => CRASH=");
+  Serial.println(crashed ? "YES" : "no");
 
   // --- ( Logic การจัดการการชน (ใช้ร่วมกันทั้ง 2 โหมด) ) ---
-  if (crashDetected) {
+  if (crashed) {
     triggerCrashAlert(); // สั่ง Buzzer ดัง
      double lat = 13.6515;      // ใส่ค่าจาก GPS ของคุณ
      double lon = 100.4943;     // ใส่ค่าจาก GPS ของคุณ
