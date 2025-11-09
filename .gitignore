@@ -2,7 +2,7 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-/src/secrets.h
+/include/secrets.h
 /.pio/
 /.vscode/
 .DS_Store
