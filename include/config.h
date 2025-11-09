@@ -38,7 +38,7 @@
 #define BUZZER_BLINK_MS   500
 
 // ================= CANCEL BUTTON =================
-#define CANCEL_PIN        25
+#define CANCEL_PIN        15
 #define CANCEL_ACTIVE_LOW 1
 #define CANCEL_DEBOUNCE_MS 100
 

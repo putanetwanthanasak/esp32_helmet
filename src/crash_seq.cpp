@@ -101,80 +101,61 @@ void crashSeqStart() {
 }
 
 void crashSeqUpdate() {
-  // ปุ่มยกเลิกมาก่อนเสมอ
+  // ✅ เช็กปุ่มก่อนทุกอย่าง
   if (cancelPressed()) { resetAll(); return; }
 
-  // งาน background non-blocking
+  // งานเบื้องหลังทั้งหมด
   buzzerBlinkUpdate();
   scrollUpdate();
   gpsPoll();
 
-  const unsigned long now = millis();
+  // ✅ เช็กปุ่มอีกครั้งหลัง scroll/gps เพื่อให้รีเซ็ตได้แม้ขณะ OLED กำลังอัปเดต
+  if (cancelPressed()) { resetAll(); return; }
+
+  unsigned long now = millis();
 
   switch (cs) {
-
     case CrashState::IDLE:
-      // ไม่มีอะไรทำ
       break;
 
     case CrashState::A_ACTIVE:
-      // ครบเวลาหน่วง -> เข้าสเตจส่ง LINE + ดึงข้อมูล
       if (now - tA >= CRASH_DELAY_MS) {
         cs = CrashState::B_ACTIVE;
         tB = now;
         lineSent = false;
         dataFetched = false;
-        oledSending();                    // "Sending..." / "Loading..."
+        oledSending();
       }
       break;
 
     case CrashState::B_ACTIVE:
-      // 1) ส่ง LINE (ครั้งเดียว)
       if (!lineSent) {
         GPSFix fix = gpsGetFix();
         GPSFix raw = gpsGetRaw();
         bool ok = false;
-
-        if (fix.valid) {
-          String extra; extra.reserve(32);
-          extra  = "sats="; extra += String(fix.sats);
-          extra += " age="; extra += String(fix.age_ms);
-          extra += "ms";
-          ok = lineMsgPushCrash(LINE_USER_ID, fix.lat, fix.lon, LINE_TITLE, extra);
-        } 
-        else if (raw.valid) {
-          String extra; extra.reserve(40);
-          extra  = "approx sats="; extra += String(raw.sats);
-          extra += " age=";        extra += String(raw.age_ms);
-          extra += "ms";
-          ok = lineMsgPushCrash(LINE_USER_ID, raw.lat, raw.lon, LINE_TITLE, extra);
-        } 
-        else {
-          String msg = String(LINE_TITLE);
-          msg += "\nNo GPS fix.\nCheck device location.";
-          ok = lineMsgPushText(LINE_USER_ID, msg);
-        }
-
-        Serial.println(ok ? "LINE (Messaging API): sent" : "LINE (Messaging API): failed");
+        if (fix.valid)
+          ok = lineMsgPushCrash(LINE_USER_ID, fix.lat, fix.lon, LINE_TITLE, "auto");
+        else if (raw.valid)
+          ok = lineMsgPushCrash(LINE_USER_ID, raw.lat, raw.lon, LINE_TITLE, "approx");
+        else
+          ok = lineMsgPushText(LINE_USER_ID, String(LINE_TITLE)+="\nNo GPS fix.");
         lineSent = true;
       }
 
-      // 2) ดึงข้อมูลจาก Firebase + เริ่มสกรอล (ครั้งเดียว)
       if (!dataFetched) {
         dataFetched = true;
         if (fetchCrashInfo()) startScroll();
-        else                  oledFetchFailed(g_fetchError);
+        else oledFetchFailed(g_fetchError);
       }
 
-      // 3) เมื่อสกรอลครบหรือเกินเวลา -> ไป HOLDING
-      if (!scrollActive() || (now - tB > POST_B_ACTION_TIMEOUT)) {
-        oledHelpSent();                   // แสดง "HELP SENT"
+      // 🟢 ถ้าแสดงข้อมูลครบ หรือส่ง LINE เสร็จ → เข้าสู่ HOLDING
+      if (lineSent && dataFetched) {
+        oledHelpSent();
         cs = CrashState::HOLDING;
       }
       break;
 
     case CrashState::HOLDING:
-      // ค้างเสียง/จอจนกว่าจะกดยกเลิก (cancelPressed ด้านบนจะ reset)
       break;
   }
 }

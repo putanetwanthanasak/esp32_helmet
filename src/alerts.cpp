@@ -4,27 +4,34 @@
 U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(
   U8G2_R0, /*clock=*/DISP_SCL, /*data=*/DISP_SDA, /*reset=*/U8X8_PIN_NONE);
 
-// Cancel
-static int c_lastRaw=-1, c_debounced=-1;
-static unsigned long c_lastEdge=0;
+// ===== Cancel button with interrupt (ESP32) =====
+volatile bool g_cancelFlag = false;      // ถูกแตะจาก ISR -> ต้องเป็น volatile
+static unsigned long g_lastCancelMs = 0; // ดีบาวซ์ฝั่ง main-loop
+
+// ISR ต้องสั้น ๆ และอยู่ใน IRAM
+static void IRAM_ATTR cancelISR() {
+  g_cancelFlag = true;  // แค่ตั้งธงไว้ ห้ามเรียกฟังก์ชันหนัก ๆ ใน ISR
+}
 
 void cancelBegin(){
-  pinMode(CANCEL_PIN, CANCEL_ACTIVE_LOW ? INPUT_PULLUP : INPUT);
+  // ใช้ INPUT_PULLUP เสมอ แล้วต่อปุ่มลง GND (active-low)
+  pinMode(CANCEL_PIN, INPUT_PULLUP);
+  // ติดตั้งอินเทอร์รัพท์ขอบตก (FALLING) สำหรับ active-low
+  attachInterrupt(digitalPinToInterrupt(CANCEL_PIN), cancelISR, FALLING);
 }
+
+// อ่านแล้ว "กินธง" พร้อมดีบาวซ์แบบไม่บล็อก
 bool cancelPressed(){
-  unsigned long now=millis();
-  int raw = digitalRead(CANCEL_PIN);
-  if (raw != c_lastRaw){ c_lastRaw=raw; c_lastEdge=now; }
-  if (c_debounced==-1){
-    if (now - c_lastEdge >= CANCEL_DEBOUNCE_MS) c_debounced=raw;
+  if (!g_cancelFlag) return false;
+  unsigned long now = millis();
+  if (now - g_lastCancelMs < CANCEL_DEBOUNCE_MS) {
+    // กดยิก ๆ ติดกัน ให้รอครบดีบาวซ์ก่อนค่อยยอมรับครั้งถัดไป
+    g_cancelFlag = false;  // กินธงทิ้งเพื่อไม่ให้ลูปเด้งซ้ำ
     return false;
   }
-  if ((now-c_lastEdge)>=CANCEL_DEBOUNCE_MS && c_debounced != raw){
-    c_debounced = raw;
-    const int active = CANCEL_ACTIVE_LOW ? LOW : HIGH;
-    if (c_debounced == active) return true;
-  }
-  return false;
+  g_lastCancelMs = now;
+  g_cancelFlag = false;    // consume flag
+  return true;
 }
 
 // Buzzer
@@ -94,16 +101,23 @@ bool scrollActive(){ return sc.active; }
 
 void scrollUpdate(){
   if (!sc.active) return;
-  unsigned long now=millis();
-  const int frameDelay = 1000/ DISP_SCROLL_FPS;
-  if (now - sc.startMs > DISP_SCROLL_TOTAL_MS){ sc.active=false; return; }
+  unsigned long now = millis();
+  const int frameDelay = 100; // 10 fps ช้าลงแต่ลื่นพอ
   if (now - sc.lastFrame < (unsigned long)frameDelay) return;
   sc.lastFrame = now;
 
-  sc.yCur--; if (sc.yCur < sc.yEnd) sc.yCur = sc.yStart;
+  sc.yCur--;
+  if (sc.yCur < sc.yEnd) sc.yCur = sc.yStart;
 
-  u8g2.clearBuffer(); u8g2.setFont(u8g2_font_ncenB08_tr);
-  int y=sc.yCur, H=10;
-  for(int i=0;i<8;i++) u8g2.drawStr(0,y, sc.lines[i].substring(0,20).c_str()), y+=H;
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_ncenB08_tr);
+  int y = sc.yCur, H = 10;
+  for (int i = 0; i < 8; i++) {
+    u8g2.drawStr(0, y, sc.lines[i].substring(0, 20).c_str());
+    y += H;
+  }
   u8g2.sendBuffer();
+
+  // 🟢 ปล่อย CPU ให้ทำงานอื่น เช่น อ่านปุ่ม
+  yield();
 }
