@@ -55,7 +55,7 @@
 
 // ================= LINE =================
 #define LINE_ENABLE        1
-#define LINE_TITLE         "🚨 Helmet Alert"
+#define LINE_TITLE         "Helmet Alert"
 
 // ================= FIREBASE =================
 #define FIREBASE_HOST "https://helmetsafty-default-rtdb.asia-southeast1.firebasedatabase.app"

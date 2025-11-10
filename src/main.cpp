@@ -51,9 +51,24 @@ void setup(){
   Serial.println("System Ready");
 }
 
+
 void loop(){
   SensorData s = sensorsRead();
   bool crashed = fallDetected(s);
+
+  // อัปเดตหน้า System Ready + สถานะ Wi-Fi & GPS เฉพาะตอนยังไม่ crash
+  if (!crashActive()){
+    static unsigned long lastDraw = 0;
+    if (millis() - lastDraw >= 500) {
+      lastDraw = millis();
+
+      const bool wifiOK = (WiFi.status() == WL_CONNECTED);
+      IPAddress ip = wifiOK ? WiFi.localIP() : IPAddress(0,0,0,0);
+
+      GPSFix f = gpsGetFix();        // ใช้เงื่อนไข pass() ภายใน gps.cpp แล้ว
+      oledReadyStatus(wifiOK, ip, f.valid, f.sats);
+    }
+  }
 
   if (DEBUG_SERIAL){
     static unsigned long last=0;
@@ -68,10 +83,9 @@ void loop(){
   }
 
   if (crashed && !crashActive()){
-    crashSeqStart();    // เริ่ม A: CRASH! (เสียง+จอ) → 30s → B: ส่ง LINE + scroll
+    crashSeqStart();
   }
 
-  crashSeqUpdate();     // ดูแลเสียง/จอ/GPS/LINE/Cancel แบบ non-blocking
-
+  crashSeqUpdate();
   delay(10);
 }

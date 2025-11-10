@@ -59,6 +59,53 @@ void oledReady(){
   u8g2.clearBuffer(); u8g2.setFont(u8g2_font_ncenB08_tr);
   u8g2.drawStr(0,12,"System Ready"); u8g2.sendBuffer();
 }
+
+// ===== System Ready with Wi-Fi & GPS status (draw only on change) =====
+static int  _prevWifiReady = -1;   // -1 unknown, 0 no, 1 yes
+static IPAddress _prevIp;
+static int  _prevGpsReady  = -1;   // -1 unknown, 0 no, 1 yes
+static int  _prevGpsSats   = -1;
+
+void oledReadyStatus(bool wifiReady, const IPAddress& ip, bool gpsReady, int sats){
+  const int w = wifiReady ? 1 : 0;
+  const int g = gpsReady  ? 1 : 0;
+
+  // วาดเฉพาะตอนสถานะ/ค่าเปลี่ยน ลดการรีเฟรชจอ
+  if (w == _prevWifiReady && g == _prevGpsReady && sats == _prevGpsSats && ip == _prevIp) {
+    return;
+  }
+  _prevWifiReady = w;
+  _prevGpsReady  = g;
+  _prevGpsSats   = sats;
+  _prevIp        = ip;
+
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_ncenB08_tr);
+
+  // บรรทัด 1: หัวเรื่อง
+  u8g2.drawStr(0, 12, "System Ready");
+
+  // บรรทัด 2–3: Wi-Fi
+  if (!wifiReady) {
+    u8g2.drawStr(0, 28, "Wi-Fi: connecting...");
+  } else {
+    u8g2.drawStr(0, 28, "Wi-Fi: connected");
+    char ipbuf[24];
+    snprintf(ipbuf, sizeof(ipbuf), "IP: %u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
+    u8g2.drawStr(0, 40, ipbuf);
+  }
+
+  // บรรทัด 4–5: GPS
+  if (!gpsReady) {
+    u8g2.drawStr(0, 56, "GPS: Searching...");
+  } else {
+    char gpsbuf[32];
+    snprintf(gpsbuf, sizeof(gpsbuf), "GPS: ready  Sats:%d", sats);
+    u8g2.drawStr(0, 56, gpsbuf);
+  }
+
+  u8g2.sendBuffer();
+}
 void oledCrashWaiting(){
   u8g2.clearBuffer();
   u8g2.setFont(u8g2_font_ncenB12_tr); u8g2.drawStr(0,15,"CRASH!");
@@ -83,6 +130,7 @@ void oledHelpSent(){
   u8g2.setFont(u8g2_font_ncenB08_tr); u8g2.drawStr(0,32,"Press STOP to silence");
   u8g2.sendBuffer();
 }
+
 
 // Scrolling 8 lines
 struct ScrollState {

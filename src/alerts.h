@@ -24,5 +24,8 @@ void buzzerBlinkStart();
 void buzzerBlinkStop();
 void buzzerBlinkUpdate();
 
+// OLED Ready + GPS status + WIFI
+void oledReadyStatus(bool wifiReady, const IPAddress& ip, bool gpsReady, int sats);
+
 // U8g2 instance (หากอยากใช้เอง)
 extern U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2;
