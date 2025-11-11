@@ -64,4 +64,10 @@
 #define DEBUG_SERIAL          1
 #define DEBUG_IMU_PERIOD_MS   200
 
+
+// ================= LED =================
+#define EMER_LED_PIN 16
+#define EMER_LED_ACTIVE_HIGH 1
+#define EMER_LED_BLINK_MS 300
+
 #endif

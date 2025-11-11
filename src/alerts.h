@@ -24,6 +24,12 @@ void buzzerBlinkStart();
 void buzzerBlinkStop();
 void buzzerBlinkUpdate();
 
+//LED
+void emerLedBegin();
+void emerLedBlinkStart();
+void emerLedBlinkStop();
+void emerLedBlinkUpdate();
+
 // OLED Ready + GPS status + WIFI
 void oledReadyStatus(bool wifiReady, const IPAddress& ip, bool gpsReady, int sats);
 

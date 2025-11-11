@@ -33,6 +33,7 @@ void setup(){
   // UI
   oledBegin();  oledReady();
   buzzerBegin(); cancelBegin();
+  emerLedBegin();
 
   // Sensors & Logic
   sensorsBegin();

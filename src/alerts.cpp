@@ -53,6 +53,36 @@ void buzzerBlinkUpdate(){
   }
 }
 
+//LED
+static bool ledBlink = false;
+static bool ledState = false;
+static unsigned long lastLed = 0;
+
+void emerLedBegin() {
+  pinMode(EMER_LED_PIN, OUTPUT);
+  digitalWrite(EMER_LED_PIN, EMER_LED_ACTIVE_HIGH ? LOW : HIGH);
+}
+
+void emerLedBlinkStart() {
+  ledBlink = true;
+  lastLed = millis();
+  ledState = false;
+}
+
+void emerLedBlinkStop() {
+  ledBlink = false;
+  ledState = false;
+  digitalWrite(EMER_LED_PIN, EMER_LED_ACTIVE_HIGH ? LOW : HIGH);
+}
+
+void emerLedBlinkUpdate() {
+  if (!ledBlink) return;
+  if (millis() - lastLed >= EMER_LED_BLINK_MS) {
+    lastLed = millis();
+    ledState = !ledState;
+    digitalWrite(EMER_LED_PIN, ledState ? HIGH : LOW);
+  }
+}
 // OLED (สไตล์ตามโค้ดเดิม)
 void oledBegin(){ u8g2.begin(); }
 void oledReady(){

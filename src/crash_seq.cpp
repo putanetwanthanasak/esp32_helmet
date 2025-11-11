@@ -80,6 +80,7 @@ static void startScroll() {
 // ---------- รีเซ็ตทุกอย่างกลับสู่โหมดพร้อมตรวจ ----------
 static void resetAll() {
   buzzerBlinkStop();
+  emerLedBlinkStop();
   scrollStop();
   oledReady();
   cs = CrashState::IDLE;
@@ -95,7 +96,8 @@ bool crashActive()   { return cs != CrashState::IDLE; }
 void crashSeqStart() {
   if (cs != CrashState::IDLE) return;     // กันโดนซ้ำ
   tA = millis();
-  buzzerBlinkStart();                      // เสียงกระพริบ (จะดังจนกดยกเลิก)
+  buzzerBlinkStart();     
+  emerLedBlinkStart();                 // เสียงกระพริบ (จะดังจนกดยกเลิก)
   oledCrashWaiting();                      // หน้าจอ "CRASH!" + "Waiting …"
   cs = CrashState::A_ACTIVE;
 }
