@@ -21,9 +21,9 @@
 #define SHOCK_LATCH_MS    300
 
 // ================= MPU THRESHOLDS =================
-#define IMPACT_A_T_MS2    15.0f   // |a| เกินถือว่าหนัก
-#define IMPACT_JERK_T     20.0f   // Δ|a|/Δt
-#define OMEGA_T_DPS       500.0f  // max(|Δroll|,|Δpitch|)/Δt
+#define IMPACT_A_T_MS2    25.0f   // |a| เกินถือว่าหนัก
+#define IMPACT_JERK_T     30.0f   // Δ|a|/Δt
+#define OMEGA_T_DPS       800.0f  // max(|Δroll|,|Δpitch|)/Δt
 #define TILT_THRESH_DEG   45.0f   // เอียงเกินนี้ถือว่าอันตราย
 #define TILT_HOLD_MS      1500    // ต้องค้างเอียงนานเท่านี้
 #define ARM_WINDOW_MS     1000    // เวลาหลัง impact เพื่อจับ tilt
@@ -66,7 +66,7 @@
 
 
 // ================= LED =================
-#define EMER_LED_PIN 16
+#define EMER_LED_PIN 25
 #define EMER_LED_ACTIVE_HIGH 1
 #define EMER_LED_BLINK_MS 300
 
